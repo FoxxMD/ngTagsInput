@@ -103,9 +103,14 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
     }
 
     function encodeHTML(value) {
-        return value.replace(/&/g, '&amp;')
+        if (value && value.length)
+        {
+            return value.replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;');
+        }
+
+        return value;
     }
 
     return {
@@ -153,10 +158,14 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
 
             scope.highlight = function(item) {
                 var text = getItemText(item);
-                text = encodeHTML(text);
-                if (options.highlightMatchedText) {
-                    text = replaceAll(text, encodeHTML(suggestionList.query), '<em>$&</em>');
+
+                if (text && text.length) {
+                    text = encodeHTML(text);
+                    if (options.highlightMatchedText) {
+                        text = replaceAll(text, encodeHTML(suggestionList.query), '<em>$&</em>');
+                    }
                 }
+
                 return $sce.trustAsHtml(text);
             };
 

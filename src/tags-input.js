@@ -268,11 +268,22 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                         e.preventDefault();
                     }
                 })
+                .on('click', function (e) {
+                    // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
+                    // I've sent a PR to Angular addressing this issue and hopefully it'll be fixed soon.
+                    // https://github.com/angular/angular.js/pull/4833
+                    if (e.isImmediatePropagationStopped && e.isImmediatePropagationStopped()) {
+                        return;
+                    }
+
+                    scope.hasFocus = true;
+                    events.trigger('input-focus');
+                })
                 .on('focus', function() {
                     if (scope.hasFocus) {
                         return;
                     }
-                    scope.events.trigger('input-focus');
+
                     scope.hasFocus = true;
                     events.trigger('input-focus');
 
@@ -291,7 +302,16 @@ tagsInput.directive('tagsInput', function($timeout, $document, tagsInputConfig) 
                     });
                 });
 
-            element.find('div').on('click', function() {
+            element.find('div').on('click', function(e) {
+                // This hack is needed because jqLite doesn't implement stopImmediatePropagation properly.
+                // I've sent a PR to Angular addressing this issue and hopefully it'll be fixed soon.
+                // https://github.com/angular/angular.js/pull/4833
+                if (e.isImmediatePropagationStopped && e.isImmediatePropagationStopped()) {
+                    return;
+                }
+
+                scope.hasFocus = false;
+
                 input[0].focus();
             });
         }
