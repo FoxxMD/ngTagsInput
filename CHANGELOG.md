@@ -1,3 +1,37 @@
+## v2.0.1 (2014-04-13)
+
+#### Bug Fixes
+
+* **autocomplete:**
+  * Escape regex metachars when highlighting ([e3c695f2](https://github.com/mbenford/ngTagsInput/commit/e3c695f26f96ab642a4a1f1129638e763b84b231), [#124](https://github.com/mbenford/ngTagsInput/issues/124))
+  * Fix autocomplete navigation when maxResultsToShow is set ([d95d35e8](https://github.com/mbenford/ngTagsInput/commit/d95d35e814099d74355ed431e85a957d39ec4745), [#109](https://github.com/mbenford/ngTagsInput/issues/109))
+  * Fix memory leak ([ba3a1a56](https://github.com/mbenford/ngTagsInput/commit/ba3a1a563d99894f381e4a29f3a1753a540ff453), [#118](https://github.com/mbenford/ngTagsInput/issues/118))
+* **autosize:** Re-size input when placeholder changes ([0eacc964](https://github.com/mbenford/ngTagsInput/commit/0eacc9647ed7b12fac8db23cb711bb6c38a8c31a), [#110](https://github.com/mbenford/ngTagsInput/issues/110))
+
+## v2.0.0 (2014-03-26)
+
+#### Bug Fixes
+
+* **tagsInput:**
+  * Fix blur handling ([f4fe7b87](https://github.com/mbenford/ngTagsInput/commit/f4fe7b87985e123d688595cd14aa22d549143de6), [#91](https://github.com/mbenford/ngTagsInput/issues/91))
+  * Fix autosize directive ([e9a723c9](https://github.com/mbenford/ngTagsInput/commit/e9a723c911a8d32964ad771c333f09fc78157172), [#84](https://github.com/mbenford/ngTagsInput/issues/84)) ([12b5beba](https://github.com/mbenford/ngTagsInput/commit/12b5beba230304fd22b6fef8eb613f6133860c0a), [#75](https://github.com/mbenford/ngTagsInput/issues/75))
+
+#### Features
+
+* **tagsInput:**
+  * Add addFromAutocompleteOnly option ([90f075c9](https://github.com/mbenford/ngTagsInput/commit/90f075c991866b99bd830529913483ea5e32a63f), [#60](https://github.com/mbenford/ngTagsInput/issues/60))
+  * Make maxLength consistent with minLength ([1458ba62](https://github.com/mbenford/ngTagsInput/commit/1458ba624a876a25ac0d8776388ecf4a16cc6aa7), [#53](https://github.com/mbenford/ngTagsInput/issues/53))
+  * Add visual feedback for invalid tags ([f469c274](https://github.com/mbenford/ngTagsInput/commit/f469c274b09397ca88004da78670dc090bf693e0), [#77](https://github.com/mbenford/ngTagsInput/issues/77))
+  * Change allowedTagsPattern's default value ([87029090](https://github.com/mbenford/ngTagsInput/commit/8702909009f998114765b6673c565dda4b038b43), [#76](https://github.com/mbenford/ngTagsInput/issues/76))
+  * Add support for validation CSS classes ([7f9e8bba](https://github.com/mbenford/ngTagsInput/commit/7f9e8bba7defca2c0f7c75b933b2e9c336f72b47), [#55](https://github.com/mbenford/ngTagsInput/issues/55))
+  * Add support for array of objects ([5c036806](https://github.com/mbenford/ngTagsInput/commit/5c036806a41d425e194d0496d9f091fb927b42c3), [#46](https://github.com/mbenford/ngTagsInput/issues/46))
+* **configProvider:** Make options optionally data-bound ([390380bf](https://github.com/mbenford/ngTagsInput/commit/390380bffd4cac03ca71cb780e20898b2a6b07ad), [#73](https://github.com/mbenford/ngTagsInput/issues/73))
+
+#### Breaking Changes
+
+* Stylesheets were changed and .ngTagsInput class selector was replaced by tags-input type selector. ([7f9e8bba](https://github.com/mbenford/ngTagsInput/commit/7f9e8bba7defca2c0f7c75b933b2e9c336f72b47))
+* From now on, arrays of strings are no longer supported. In order to keep some backward compatibility a one-time conversion from an array of strings into an array of objects is available. ([5c036806](https://github.com/mbenford/ngTagsInput/commit/5c036806a41d425e194d0496d9f091fb927b42c3))
+
 ## v1.1.1 (2014-01-23)
 
 #### Bug Fixes
