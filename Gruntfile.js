@@ -14,6 +14,7 @@ module.exports = function(grunt) {
             js: {
                 src: [
                     'src/keycodes.js',
+                    'src/util.js',
                     'src/init.js',
                     'src/tags-input.js',
                     'src/auto-complete.js',
@@ -25,7 +26,7 @@ module.exports = function(grunt) {
                 outMin: 'build/<%= pkg.name %>.min.js'
             },
             css: {
-                src: ['css/tags-input.css', 'css/autocomplete.css'],
+                src: 'scss/main.scss',
                 out: 'build/<%= pkg.name %>.css',
                 outMin: 'build/<%= pkg.name %>.min.css'
             },
@@ -128,11 +129,6 @@ module.exports = function(grunt) {
                 files: {
                     '<%= files.js.out %>': ['<%= files.js.src %>', '<%= files.html.out %>']
                 }
-            },
-            css: {
-                files: {
-                    '<%= files.css.out %>': ['<%= files.css.src %>']
-                }
             }
         },
         // Adds AngularJS dependency injection annotations
@@ -140,6 +136,17 @@ module.exports = function(grunt) {
             directives: {
                 files: {
                     '<%= files.js.out %>': ['<%= files.js.out %>']
+                }
+            }
+        },
+        sass: {
+            build: {
+                options: {
+                    style: 'expanded',
+                    noCache: true
+                },
+                files: {
+                    '<%= files.css.out %>': ['<%= files.css.src %>']
                 }
             }
         },
@@ -258,7 +265,19 @@ module.exports = function(grunt) {
                     stdout: true,
                     execOptions: { cwd: bowerRepoDirectory }
                 }
+            },
+            git_build: {
+                command: [
+                    'git add build/',
+                    'git commit -m "chore(build): Update build files [skip ci]"'
+                ].join('&&'),
+                options: {
+                    stdout: true
+                }
             }
+        },
+        ngdocs: {
+            all: ['src/**/*.js']
         }
     });
 
@@ -276,26 +295,48 @@ module.exports = function(grunt) {
     grunt.registerTask('travis', ['test', 'coveralls']);
     grunt.registerTask('coverage', ['test', 'open:coverage']);
 
-    grunt.registerTask('pack', [
+    grunt.registerTask('javascript-only', [
         'test',
-        'clean',
         'ngtemplates',
         'concat',
         'ngAnnotate',
-        'uglify',
-        'cssmin',
-        'compress',
-        'clean:tmp'
+        'uglify'
     ]);
+
+    grunt.registerTask('css-only', [
+        'sass',
+        'cssmin'
+    ]);
+
+    grunt.registerTask('pack', function(output) {
+        var tasks = ['clean'];
+
+        if (!output || output === 'js') {
+            tasks.push('javascript-only');
+        }
+        if (!output || output === 'css') {
+            tasks.push('css-only');
+        }
+
+        tasks.push('clean:tmp');
+
+        grunt.task.run(tasks);
+    });
 
     grunt.registerTask('release', [
         'pack',
+        'compress',
         'changelog',
         'replace:changelog',
         'shell:git',
         'copy:bower',
         'update-bower-version',
         'shell:git_bower'
+    ]);
+
+    grunt.registerTask('build', [
+        'pack',
+        'shell:git_build'
     ]);
 
     grunt.registerTask('default', ['pack']);

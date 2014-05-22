@@ -2,7 +2,8 @@
 
 /**
  * @ngdoc directive
- * @name tagsInput.directive:autoComplete
+ * @name autoComplete
+ * @module ngTagsInput
  *
  * @description
  * Provides autocomplete support for the tagsInput directive.
@@ -27,15 +28,9 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
         var self = {}, debouncedLoadId, getDifference, lastPromise;
 
         getDifference = function(array1, array2) {
-            var result = [];
-
-            array1.forEach(function(item) {
-                if (array2.indexOf(item) === -1) {
-                    result.push(item);
-                }
+            return array1.filter(function(item) {
+                return !findInObjectArray(array2, item, options.tagsInput.displayProperty);
             });
-
-            return result;
         };
 
         self.reset = function() {
@@ -72,7 +67,10 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
                         return;
                     }
 
-                    self.items = getDifference(items.data || items, tags);
+                    items = makeObjectArray(items.data || items, options.tagsInput.displayProperty);
+                    items = getDifference(items, tags);
+                    self.items = items.slice(0, options.maxResultsToShow);
+
                     if (self.items.length > 0) {
                         self.show();
                     }
@@ -117,7 +115,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
         templateUrl: 'ngTagsInput/auto-complete.html',
         link: function(scope, element, attrs, tagsInputCtrl) {
             var hotkeys = [KEYS.enter, KEYS.tab, KEYS.escape, KEYS.up, KEYS.down],
-                suggestionList, tagsInput, markdown;
+                suggestionList, tagsInput, options, getItemText, documentClick;
 
             tagsInputConfig.load('autoComplete', scope, attrs, {
                 debounceDelay: [Number, 100],
@@ -127,20 +125,16 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
                 showOnEmpty: [Boolean, false]
             });
 
-            tagsInput = tagsInputCtrl.registerAutocomplete();
-            suggestionList = new SuggestionList(scope.source, scope.options);
+            options = scope.options;
 
-            if (scope.options.highlightMatchedText) {
-                markdown = function(item, text) {
-                    var expression = new RegExp(text, 'gi');
-                    return item.replace(expression, '**$&**');
-                };
-            }
-            else {
-                markdown = function(item) {
-                    return item;
-                };
-            }
+            tagsInput = tagsInputCtrl.registerAutocomplete();
+            options.tagsInput = tagsInput.getOptions();
+
+            suggestionList = new SuggestionList(scope.source, options);
+
+            getItemText = function(item) {
+                return item[options.tagsInput.displayProperty];
+            };
 
             scope.suggestionList = suggestionList;
 
@@ -148,7 +142,7 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
                 var added = false;
 
                 if (suggestionList.selected) {
-                    tagsInput.tryAddTag(suggestionList.selected);
+                    tagsInput.addTag(suggestionList.selected);
                     suggestionList.reset();
                     tagsInput.focusInput();
 
@@ -158,13 +152,22 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
             };
 
             scope.highlight = function(item) {
-                item = markdown(item, suggestionList.query);
-                item = encodeHTML(item);
-                item = item.replace(/\*\*(.+?)\*\*/g, '<em>$1</em>');
-                return $sce.trustAsHtml(item);
+                var text = getItemText(item);
+                text = encodeHTML(text);
+                if (options.highlightMatchedText) {
+                    text = replaceAll(text, encodeHTML(suggestionList.query), '<em>$&</em>');
+                }
+                return $sce.trustAsHtml(text);
+            };
+
+            scope.track = function(item) {
+                return getItemText(item);
             };
 
             tagsInput
+                .on('tag-added invalid-tag', function() {
+                    suggestionList.reset();
+                })
                 .on('input-change', function(value) {
                     if (value) {
                         suggestionList.load(value, tagsInput.getTags());
@@ -230,11 +233,17 @@ tagsInput.directive('autoComplete', function($document, $timeout, $sce, tagsInpu
                     }
                 });
 
-            $document.on('click', function() {
+            documentClick = function() {
                 if (suggestionList.visible) {
                     suggestionList.reset();
                     scope.$apply();
                 }
+            };
+
+            $document.on('click', documentClick);
+
+            scope.$on('$destroy', function() {
+                $document.off('click', documentClick);
             });
         }
     };
